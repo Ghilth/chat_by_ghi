@@ -1,9 +1,26 @@
-# api.py
 
 from typing import List, Optional, Literal
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from main import get_datasets_response
+from fastapi.middleware.cors import CORSMiddleware
+
+
+
+
+
+app = FastAPI(title="API OpenData Bénin")
+
+
+# Autorise les requêtes depuis *n’importe quelle* origine (ou liste spécifique)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],            # ou par exemple ["https://ton-domaine.com"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app = FastAPI(title="API OpenData Bénin")
 
@@ -16,7 +33,7 @@ class SearchResponse(BaseModel):
     status: Literal["ok", "hors_sujet"]
     keywords: Optional[List[str]] = None
     datasets: Optional[List[Dataset]] = None
-    message: Optional[str] = None  # contient le recadrage si hors_sujet
+    message: Optional[str] = None 
 
 class ErrorResponse(BaseModel):
     status: Literal["error"]
