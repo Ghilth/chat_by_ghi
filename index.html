@@ -506,7 +506,7 @@
                 const url = `https://chat-by-ghi.onrender.com/search?query=${encodeURIComponent(query)}`;
                 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                const timeoutId = setTimeout(() => controller.abort(), 40000);
 
                 const response = await fetch(url, {
                     method: 'POST',

@@ -12,7 +12,7 @@ app = FastAPI(title="API OpenData Bénin")
 origins = [
     "http://127.0.0.1:5500",  
     "https://chat-by-ghi.onrender.com",
-    "https://afiaviopendata.netlify.app/"  # si tu as un front hébergé
+    "https://afiaviopendata.netlify.app"  # si tu as un front hébergé
     
 ]
 app.add_middleware(
