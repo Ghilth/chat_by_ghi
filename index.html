@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const url = `https://chat-by-ghi.onrender.com/search?query=${encodeURIComponent(query)}`;
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 s timeout
 
     try {
       const response = await fetch(url, {
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         data = JSON.parse(raw);
       } catch (e) {
-        addMessage("Réponse invalide reçue de l'API.", false);
+        addMessage("Erreur de connexion, veuillez réessayer", false);
         console.error('JSON parse error:', e);
         return;
       }
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (err.name === 'AbortError') {
         addMessage("⏳ La requête a mis trop de temps à répondre. Réessayez plus tard !", false);
       } else {
-        addMessage("❌ Erreur de connexion à l'API. Réessayez plus tard !", false);
+        addMessage("❌ Erreur de connexion à l'API.", false);
         console.error('Fetch error:', err);
       }
     }
