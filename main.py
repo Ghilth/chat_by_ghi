@@ -20,7 +20,7 @@ def get_datasets_response(user_input: str) -> dict:
     try:
         result = generate_key_words(user_input)
     except Exception as e:
-        return {"status": "error", "message": f"Erreur LLM : {e}"}
+        return {"status": "error", "message": "Problème de connexion, veuillez réessayez ultérieurement"}
 
     # 2) Hors sujet
     if result["status"] != "ok":
