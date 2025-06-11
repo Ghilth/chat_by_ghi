@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chatbot CKAN - Recherche de Données</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afiavi - Assistant OpenData Bénin</title>
     <style>
         * {
             margin: 0;
@@ -13,29 +13,112 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f7fc;
-            min-height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            overflow: hidden;
         }
 
-        .chatbot-container {
-            background: white;
-            border-radius: 12px;
-            width: 100%;
+        .chat-container {
+            width: 95%;
             max-width: 800px;
             height: 90vh;
-            max-height: 700px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            animation: fadeIn 0.6s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        @keyframes fadeIn {
+        .chat-header {
+            background: linear-gradient(135deg, #00b894, #00a085);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(255,255,255,0.05)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .bot-info {
+            position: relative;
+            z-index: 1;
+        }
+
+        .bot-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3436;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .bot-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .bot-description {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #00b894;
+            border-radius: 10px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
             from {
                 opacity: 0;
                 transform: translateY(20px);
@@ -46,232 +129,294 @@
             }
         }
 
-        .chat-header {
-            background: #667eea;
-            color: white;
-            padding: 24px;
-            text-align: center;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .chat-header h1 {
-            font-size: 1.6em;
-            font-weight: 600;
-        }
-
-        .chat-header p {
-            opacity: 0.85;
-            font-size: 0.9em;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 24px;
-            overflow-y: auto;
-            background: #f9f9fb;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .message {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            animation: fadeInMessage 0.3s ease-out;
-        }
-
         .message.user {
-            align-items: flex-end;
+            text-align: right;
         }
 
-        @keyframes fadeInMessage {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .message.bot {
+            text-align: left;
         }
 
         .message-bubble {
-            padding: 16px 24px;
+            display: inline-block;
+            max-width: 70%;
+            padding: 15px 20px;
             border-radius: 20px;
-            max-width: 80%;
-            font-size: 1em;
-            word-wrap: break-word;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            font-size: 14px;
+            line-height: 1.4;
+            position: relative;
         }
 
         .message.user .message-bubble {
-            background: #667eea;
+            background: linear-gradient(135deg, #00b894, #00a085);
             color: white;
+            border-bottom-right-radius: 5px;
         }
 
         .message.bot .message-bubble {
-            background: white;
-            color: #333;
-            border: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            color: #2d3436;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
         }
 
-        .chat-input-area {
-            background: white;
-            padding: 16px;
-            border-top: 1px solid #e0e0e0;
-            display: flex;
-            gap: 12px;
-            align-items: center;
+        .datasets-container {
+            margin-top: 15px;
         }
 
-        #messageInput {
-            flex: 1;
-            padding: 12px 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 16px;
+        .dataset-card {
+            background: white;
+            border: 1px solid #00b894;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
             transition: all 0.3s ease;
-            outline: none;
-            min-height: 45px;
+            cursor: pointer;
         }
 
-        #messageInput:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        .dataset-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.2);
+            border-color: #00a085;
         }
 
-        #sendButton {
-            background: #667eea;
+        .dataset-title {
+            font-weight: bold;
+            color: #00b894;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .dataset-description {
+            color: #636e72;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .dataset-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #00b894, #00a085);
             color: white;
-            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .dataset-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(0, 184, 148, 0.3);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            border-bottom-left-radius: 5px;
+            max-width: 70%;
+            margin-bottom: 20px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            background: #00b894;
             border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            resize: none;
+            max-height: 120px;
+            min-height: 50px;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            border-color: #00b894;
+            box-shadow: 0 0 10px rgba(0, 184, 148, 0.1);
+        }
+
+        .send-button {
             width: 50px;
             height: 50px;
+            background: linear-gradient(135deg, #00b894, #00a085);
+            border: none;
+            border-radius: 50%;
+            color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
+            font-size: 18px;
         }
 
-        #sendButton:hover {
+        .send-button:hover:not(:disabled) {
             transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.3);
         }
 
-        #sendButton:disabled {
+        .send-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        .loading {
+        .welcome-message {
             text-align: center;
+            color: #636e72;
+            font-style: italic;
+            margin: 20px 0;
             padding: 20px;
+            background: rgba(0, 184, 148, 0.05);
+            border-radius: 15px;
+            border: 1px dashed #00b894;
         }
 
-        .loading-dots {
-            display: inline-block;
-            animation: dots 1.5s steps(4, end) infinite;
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
         }
 
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60% { content: '...'; }
-            80%, 100% { content: ''; }
-        }
-
-        .connection-status {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 8px 15px;
+        .suggestion-chip {
+            background: rgba(0, 184, 148, 0.1);
+            color: #00b894;
+            padding: 8px 16px;
             border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: bold;
+            border: 1px solid rgba(0, 184, 148, 0.2);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
         }
 
-        .connection-status.connected {
-            background: #4caf50;
+        .suggestion-chip:hover {
+            background: #00b894;
             color: white;
+            transform: translateY(-2px);
         }
 
-        .connection-status.disconnected {
-            background: #f44336;
-            color: white;
+        .error-message {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
         }
 
-        @media (max-width: 600px) {
-            .chatbot-container {
-                height: 100%;
-                border-radius: 12px;
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
             }
 
             .message-bubble {
                 max-width: 85%;
             }
 
-            .chat-header h1 {
-                font-size: 1.4em;
+            .chat-header {
+                padding: 15px;
             }
 
-            #messageInput {
-                font-size: 14px;
-                padding: 12px 18px;
-            }
-
-            #sendButton {
-                width: 45px;
-                height: 45px;
-                font-size: 1.2em;
+            .bot-name {
+                font-size: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="connection-status" id="connectionStatus" aria-live="polite">🔄 Connexion...</div>
-    
-    <div class="chatbot-container">
+    <div class="chat-container">
         <div class="chat-header">
-            <h1>🤖 Assistant CKAN</h1>
-            <p>Recherchez des jeux de données du portail data.gouv.bj</p>
-        </div>
-        
-        <div class="chat-messages" id="chatMessages" aria-live="polite">
-            <div class="message bot">
-                <div class="message-bubble">
-                    Bonjour ! Je suis votre assistant pour rechercher des jeux de données sur le portail open data du Bénin. 
-                    <br><br>
-                    Vous pouvez me demander des informations sur :
-                    <ul style="margin-top: 10px; padding-left: 20px;">
-                        <li>Des domaines spécifiques (agriculture, éducation, santé…)</li>
-                        <li>Des périodes précises (ex : "données de 2018 à 2020")</li>
-                        <li>Des statistiques particulières</li>
-                    </ul>
-                </div>
+            <div class="bot-info">
+                <div class="bot-avatar">&#x1F469;&#x1F3FF;&#x200D;&#x2696;&#xFE0F;</div>
+                <div class="bot-name">Afiavi</div>
+                <div class="bot-description">Assistant intelligent pour l'OpenData du Bénin</div>
             </div>
         </div>
-        
-        <div class="loading" id="loadingIndicator" aria-live="polite">
-            <div class="loading-dots">Recherche en cours</div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message">
+                <strong>Bienvenue ! 👋</strong><br>
+                Je suis Afiavi, votre assistant pour explorer les données ouvertes du Bénin. 
+                Posez-moi une question sur les jeux de données disponibles !
+            </div>
+            
+            <div class="suggestions">
+                <div class="suggestion-chip" onclick="sendSuggestion('Données sur l\'éducation au Bénin')">📚 Éducation</div>
+                <div class="suggestion-chip" onclick="sendSuggestion('Statistiques de santé publique')">🏥 Santé</div>
+                <div class="suggestion-chip" onclick="sendSuggestion('Données économiques et finances')">💰 Économie</div>
+                <div class="suggestion-chip" onclick="sendSuggestion('Infrastructure et transport')">🚗 Transport</div>
+                <div class="suggestion-chip" onclick="sendSuggestion('Données agricoles')">🌾 Agriculture</div>
+            </div>
         </div>
-        
-        <div class="chat-input-area">
-            <div class="input-container">
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <div class="input-group">
                 <textarea 
-                    id="messageInput" 
-                    placeholder="Tapez votre question ici..."
+                    class="chat-input" 
+                    id="chatInput" 
+                    placeholder="Tapez votre question sur les données du Bénin..."
                     rows="1"
-                    aria-label="Saisissez votre question"
                 ></textarea>
-                <button 
-                    id="sendButton" 
-                    onclick="sendMessage()" 
-                    aria-label="Envoyer votre message"
-                    disabled
-                >
+                <button class="send-button" id="sendButton" onclick="sendMessage()">
                     ➤
                 </button>
             </div>
@@ -279,102 +424,157 @@
     </div>
 
     <script>
-        // URL de votre serveur Flask (back-end)
-        const API_BASE_URL = 'https://chatbot-open-data.onrender.com=';
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
 
-        // Ajoute un message dans la zone de chat (utilisateur ou bot)
-        function addMessage(content, isUser = false) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
-            
-            const bubbleDiv = document.createElement('div');
-            bubbleDiv.className = 'message-bubble';
-            
-            // Utiliser innerHTML pour formater le contenu, mais le contenu est propre et sécurisé
-            bubbleDiv.innerHTML = content; 
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
 
-            messageDiv.appendChild(bubbleDiv);
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Formate la réponse JSON renvoyée par le back-end
-        function formatResultats(data) {
-            let html = `<strong>${data.message}</strong>`;
-            if (!data.results || data.results.length === 0) {
-                return html;
-            }
-            html += `<br><br>`;
-            data.results.forEach(dataset => {
-                html += `
-                    <div class="dataset-item">
-                        <div class="dataset-title">${dataset.title}</div>
-                        <div class="dataset-org">📋 Organisation : ${dataset.organization}</div>
-                        <div class="dataset-desc">${dataset.description}</div>
-                        ${dataset.link ? `<a href="${dataset.link}" target="_blank" class="dataset-link">🔗 Accéder aux données</a>` : ''}
-                    </div>
-                `;
-            });
-            return html;
-        }
-
-        function showLoading(show) {
-            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
-            document.getElementById('sendButton').disabled = show;
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const question = input.value.trim();
-            if (!question) return;
-
-            addMessage(question, true);
-            input.value = '';
-            input.style.height = '50px';
-            
-            showLoading(true);
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/search`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question: question })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP: ${response.status}`);
-                }
-
-                const data = await response.json();
-                const reponseHTML = formatResultats(data);
-                addMessage(reponseHTML, false);
-            } catch (error) {
-                console.error('Erreur:', error);
-                const errorMsg = `
-                    <div class="error-message">
-                        <strong>Erreur de connexion :</strong><br>
-                        ${error.message}
-                    </div>
-                `;
-                addMessage(errorMsg, false);
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        // Envoi sur "Entrée"
-        document.getElementById('messageInput').addEventListener('keydown', function(e) {
+        // Send message on Enter
+        chatInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
             }
         });
 
-        // Auto-ajustement de la hauteur du textarea
-        document.getElementById('messageInput').addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        function addMessage(content, isUser, datasets = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            let messageHTML = `<div class="message-bubble">${content}`;
+            
+            if (datasets && datasets.length > 0) {
+                messageHTML += '<div class="datasets-container">';
+                datasets.forEach(dataset => {
+                    messageHTML += `
+                        <div class="dataset-card" onclick="window.open('${dataset.url}', '_blank')">
+                            <div class="dataset-title">${dataset.title}</div>
+                            <div class="dataset-description">${dataset.description}</div>
+                            <a href="${dataset.url}" target="_blank" class="dataset-link" onclick="event.stopPropagation()">
+                                📊 Accéder aux données
+                            </a>
+                        </div>
+                    `;
+                });
+                messageHTML += '</div>';
+            }
+            
+            messageHTML += '</div>';
+            messageDiv.innerHTML = messageHTML;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            typingIndicator.style.display = 'block';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.innerHTML = `⚠️ ${message}`;
+            chatMessages.appendChild(errorDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const query = chatInput.value.trim();
+            if (!query) return;
+
+            // Add user message
+            addMessage(query, true);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+
+            // Disable send button and show typing
+            sendButton.disabled = true;
+            showTyping();
+
+            try {
+                const url = `https://chat-by-ghi.onrender.com/search?query=${encodeURIComponent(query)}`;
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: '',
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+                hideTyping();
+
+                if (!response.ok) {
+                    let errMsg = 'Problème de connexion avec l\'API';
+                    try {
+                        const errorData = await response.json();
+                        errMsg = errorData.detail?.message || errorData.message || errMsg;
+                    } catch {
+                        errMsg = `Erreur ${response.status}: ${response.statusText}`;
+                    }
+                    showError(errMsg);
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('Réponse API:', data);
+
+                if (data.status === 'ok') {
+                    const message = data.datasets && data.datasets.length > 0 
+                        ? `J'ai trouvé ${data.datasets.length} jeu(x) de données pertinent(s) pour votre recherche :`
+                        : 'Voici les informations que j\'ai trouvées :';
+                    
+                    addMessage(message, false, data.datasets);
+                    
+                } else if (data.status === 'hors_sujet') {
+                    addMessage(
+                        data.message || "Désolé, votre question ne semble pas être liée aux données ouvertes du Bénin. Pourriez-vous reformuler votre demande ?", 
+                        false
+                    );
+                } else {
+                    showError(data.message || 'Réponse inattendue de l\'API');
+                }
+
+            } catch (error) {
+                hideTyping();
+                console.error('Erreur:', error);
+                
+                if (error.name === 'AbortError') {
+                    showError('Délai d\'attente dépassé. Veuillez réessayer.');
+                } else {
+                    showError('Erreur de connexion. Vérifiez votre connexion internet.');
+                }
+            } finally {
+                sendButton.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        function sendSuggestion(text) {
+            chatInput.value = text;
+            sendMessage();
+        }
+
+        // Focus on input when page loads
+        window.addEventListener('load', () => {
+            chatInput.focus();
         });
     </script>
 </body>
