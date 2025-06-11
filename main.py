@@ -1,5 +1,5 @@
 # main.py
-
+import time
 from generate_key_words import generate_key_words
 from search_ckan import search
 
@@ -26,10 +26,9 @@ def get_datasets_response(user_input: str) -> dict:
     if result["status"] != "ok":
         return {
             "status": "hors_sujet",
-            "message": result.get("message", "Requête non liée aux datasets.")
-        }
-
-    # 3) Recherche CKAN
+            "message": result.get("message", "Requête non liée aux datasets.")}
+                                                                                                                                                                                                                                                                                                                                                                              
+ # 3) Recherche CKAN
     try:
         datasets = search(result["keywords"])
     except Exception as e:
@@ -42,7 +41,7 @@ def get_datasets_response(user_input: str) -> dict:
         "datasets": datasets
     }
 
-
+                                                                                                                                                                                            
 
 # Si tu veux toujours un script CLI pour tester :
 if __name__ == "__main__":

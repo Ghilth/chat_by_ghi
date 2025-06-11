@@ -3,16 +3,16 @@ from typing import List, Optional, Literal
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from main  import get_datasets_response  # adapte selon ton arborescence
+from main  import get_datasets_response  
 
 # 1) Création de l'app
 app = FastAPI(title="API OpenData Bénin")
 
 # 2) Configuration CORS
 origins = [
-    "http://127.0.0.1:5500",  # ton front local
+    "http://127.0.0.1:5500",  
     "https://chat-by-ghi.onrender.com",  # si tu as un front hébergé
-    # "*"  # décommente si tu veux autoriser toutes les origines
+    '*'
 ]
 app.add_middleware(
     CORSMiddleware,

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat OpenData Bénin</title>
+    <title>Afiavi - opendata Bénin</title>
     <style>
         :root {
             --primary: #4CAF50;
@@ -120,7 +120,7 @@
 <body>
     <div class="container">
         <div class="chat-header">
-            <h1>OpenData Bénin</h1>
+            <h1>Afiavi</h1>
             <p>Posez des questions sur les datasets disponibles</p>
         </div>
         <div class="chat-container" id="chat-container">
@@ -188,7 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
     addMessage(query, true);
     userInput.value = '';
 
+    //const url = `http://127.0.0.1:8000/search?query=${encodeURIComponent(query)}`;
     const url = `https://chat-by-ghi.onrender.com/search?query=${encodeURIComponent(query)}`;
+
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 s timeout
 
