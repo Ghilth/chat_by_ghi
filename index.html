@@ -506,7 +506,7 @@
                 const url = `https://chat-by-ghi.onrender.com/search?query=${encodeURIComponent(query)}`;
                 
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 40000);
+                const timeoutId = setTimeout(() => controller.abort(), 75000);
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -557,7 +557,7 @@
                 console.error('Erreur:', error);
                 
                 if (error.name === 'AbortError') {
-                    showError('Délai d\'attente dépassé. Veuillez réessayer.');
+                    showError('Le server se réveille, merci de patienter quelques instants…');
                 } else {
                     showError('Erreur de connexion. Vérifiez votre connexion internet.');
                 }
